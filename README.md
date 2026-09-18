@@ -6,9 +6,8 @@ the Plum Royale colours: `index.html` (the placeholder), `privacy.html`,
 `https://astralroots.app/privacy`, `/terms`, `/support` and
 `/delete-account` (GitHub Pages serves `privacy.html` at `/privacy`).
 `CNAME` holds the custom domain and `.nojekyll` keeps Pages from
-processing the folder. The privacy and terms pages carry a DRAFT marker
-until Belmont has read both and approves them. His answers of 18 Sep 2026
-are in: effective date 1 October 2026, minimum age 18, governing law
+processing the folder. Belmont read and approved the privacy and terms pages on 18 Sep 2026,
+so the DRAFT markers are gone. His answers are in: effective date 1 October 2026, minimum age 18, governing law
 Kenya, the database region (Amazon Web Services, Ireland, read from the
 Supabase project), and the astrology API now receives only birth data.
 The provider is named on both pages and on delete-account.html as
