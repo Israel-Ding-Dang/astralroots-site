@@ -16,6 +16,17 @@ AstralRoots" (Belmont, 18 Sep 2026), with support@astralroots.app as the
 contact. No brackets remain. The production Supabase project must be
 created in the same region, or the region line changes.
 
+## Live (18 Sep 2026)
+
+Published from the public repository `Israel-Ding-Dang/astralroots-site`
+(branch `main`, root). Belmont set the DNS records at Porkbun the same
+day; GitHub's certificate is approved, **Enforce HTTPS** is on, and
+`http://` and `www.` both redirect to `https://astralroots.app/`. The
+Site URL in Supabase is set. The steps below stay as the record of how
+it was done. To publish a change: copy the changed files into a clone of
+that repository, commit and push to `main`; Pages rebuilds within a
+minute.
+
 ## Publish on GitHub Pages (Belmont, in the browser)
 
 1. Create a new **public** GitHub repository, for example `astralroots-site`.
