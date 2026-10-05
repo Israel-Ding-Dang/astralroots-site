@@ -1,0 +1,98 @@
+{
+ "new_moon_virgo": {
+  "path": "rituals/new-moon-in-virgo",
+  "title": "New Moon in Virgo"
+ },
+ "full_moon_aries": {
+  "path": "rituals/full-moon-in-aries",
+  "title": "Full Moon in Aries"
+ },
+ "new_moon_libra": {
+  "path": "rituals/new-moon-in-libra",
+  "title": "New Moon in Libra"
+ },
+ "full_moon_taurus": {
+  "path": "rituals/full-moon-in-taurus",
+  "title": "Full Moon in Taurus"
+ },
+ "new_moon_scorpio": {
+  "path": "rituals/new-moon-in-scorpio",
+  "title": "New Moon in Scorpio"
+ },
+ "full_moon_gemini": {
+  "path": "rituals/full-moon-in-gemini",
+  "title": "Full Moon in Gemini"
+ },
+ "new_moon_aries": {
+  "path": "rituals/new-moon-in-aries",
+  "title": "New Moon in Aries"
+ },
+ "new_moon_taurus": {
+  "path": "rituals/new-moon-in-taurus",
+  "title": "New Moon in Taurus"
+ },
+ "new_moon_gemini": {
+  "path": "rituals/new-moon-in-gemini",
+  "title": "New Moon in Gemini"
+ },
+ "new_moon_cancer": {
+  "path": "rituals/new-moon-in-cancer",
+  "title": "New Moon in Cancer"
+ },
+ "new_moon_leo": {
+  "path": "rituals/new-moon-in-leo",
+  "title": "New Moon in Leo"
+ },
+ "new_moon_sagittarius": {
+  "path": "rituals/new-moon-in-sagittarius",
+  "title": "New Moon in Sagittarius"
+ },
+ "new_moon_capricorn": {
+  "path": "rituals/new-moon-in-capricorn",
+  "title": "New Moon in Capricorn"
+ },
+ "new_moon_aquarius": {
+  "path": "rituals/new-moon-in-aquarius",
+  "title": "New Moon in Aquarius"
+ },
+ "new_moon_pisces": {
+  "path": "rituals/new-moon-in-pisces",
+  "title": "New Moon in Pisces"
+ },
+ "full_moon_cancer": {
+  "path": "rituals/full-moon-in-cancer",
+  "title": "Full Moon in Cancer"
+ },
+ "full_moon_leo": {
+  "path": "rituals/full-moon-in-leo",
+  "title": "Full Moon in Leo"
+ },
+ "full_moon_virgo": {
+  "path": "rituals/full-moon-in-virgo",
+  "title": "Full Moon in Virgo"
+ },
+ "full_moon_libra": {
+  "path": "rituals/full-moon-in-libra",
+  "title": "Full Moon in Libra"
+ },
+ "full_moon_scorpio": {
+  "path": "rituals/full-moon-in-scorpio",
+  "title": "Full Moon in Scorpio"
+ },
+ "full_moon_sagittarius": {
+  "path": "rituals/full-moon-in-sagittarius",
+  "title": "Full Moon in Sagittarius"
+ },
+ "full_moon_capricorn": {
+  "path": "rituals/full-moon-in-capricorn",
+  "title": "Full Moon in Capricorn"
+ },
+ "full_moon_aquarius": {
+  "path": "rituals/full-moon-in-aquarius",
+  "title": "Full Moon in Aquarius"
+ },
+ "full_moon_pisces": {
+  "path": "rituals/full-moon-in-pisces",
+  "title": "Full Moon in Pisces"
+ }
+}

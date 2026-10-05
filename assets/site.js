@@ -73,7 +73,7 @@ moon.style.transform = "translate3d(0," + y.toFixed(1) + "px,0)";
 });
 }, { passive: true });
 }
-d.querySelectorAll("form.picker").forEach(function (f) {
+if (!d.getElementById("compat-data")) d.querySelectorAll("form.picker").forEach(function (f) {
 f.addEventListener("submit", function (e) {
 e.preventDefault();
 var a = f.a, b = f.b, x = a.selectedIndex <= b.selectedIndex;

@@ -1,0 +1,44 @@
+# The sky today (astralroots.app/sky): rewritten every morning by this
+# workflow on the site repository, with the same engine bundle the site's
+# calculator uses, so the page says what the app's daily sky says. Written
+# into the published folder by the site generator in the main repository;
+# edit it there, not here.
+name: The sky today
+
+on:
+  schedule:
+    - cron: "15 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: sky
+  cancel-in-progress: false
+
+jobs:
+  sky:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Compute today's sky
+        run: node sky/build.mjs
+      - name: Commit the page if it changed
+        run: |
+          if git diff --quiet -- sky/index.html; then
+            echo "sky/index.html is already today's"
+            exit 0
+          fi
+          git config user.name "the sky today"
+          git config user.email "sky@astralroots.app"
+          git commit -m "The sky today: $(date -u +%Y-%m-%d)" -- sky/index.html
+          git push
+      - name: Ask Pages to build
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api --method POST "repos/${{ github.repository }}/pages/builds" || echo "Pages will build on the push"

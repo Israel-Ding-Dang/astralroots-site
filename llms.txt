@@ -18,6 +18,11 @@ AstralRoots reads today's sky against your own birth chart and tells you, in pla
 - [Compatibility](https://astralroots.app/compatibility/): how any two Sun signs meet
 - [Moon rituals](https://astralroots.app/rituals/): a simple ritual for every new and full moon, in every sign, with the next date
 
+## The tools
+
+- [Birth chart calculator](https://astralroots.app/birth-chart): your Sun, Moon, Rising, planets, houses and aspects, calculated in your browser
+- [The sky today](https://astralroots.app/sky/): today's Moon phase and sign, the retrogrades, and the next new and full moon
+
 ## The app
 
 - [AstralRoots on Google Play](https://play.google.com/store/apps/details?id=com.astralroots.app&referrer=utm_source%3Dastralroots.app%26utm_medium%3Dsite%26utm_campaign%3Dllms)
