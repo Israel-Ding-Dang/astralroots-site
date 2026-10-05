@@ -73,6 +73,13 @@ moon.style.transform = "translate3d(0," + y.toFixed(1) + "px,0)";
 });
 }, { passive: true });
 }
+d.querySelectorAll("form.picker").forEach(function (f) {
+f.addEventListener("submit", function (e) {
+e.preventDefault();
+var a = f.a, b = f.b, x = a.selectedIndex <= b.selectedIndex;
+location.href = "/compatibility/" + (x ? a.value + "-and-" + b.value : b.value + "-and-" + a.value);
+});
+});
 d.addEventListener("click", function (e) {
 var a = e.target.closest && e.target.closest("a[data-play]");
 if (a) count("play_click", a.getAttribute("data-play"));
