@@ -1,4 +1,5 @@
 {
+ "_nextLine": "The next {Ritual} is on {date}.",
  "new_moon_virgo": {
   "path": "rituals/new-moon-in-virgo",
   "title": "New Moon in Virgo"
