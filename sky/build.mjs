@@ -62,8 +62,12 @@ const moonLine = phase.exactAt
   : `The Moon is ${phase.name.toLowerCase()} in ${cap(phase.sign)}.`;
 const retroLine = retro.length ? `Retrograde now: ${retro.join(", ")}` : "No planet is retrograde today.";
 
-let html = readFileSync(join(here, "template.html"), "utf8");
+// --json-only: the site build runs this before the pages exist, for the
+// home page's strip, and wants today.json alone.
+const jsonOnly = process.argv.includes("--json-only");
+let html = jsonOnly ? "" : readFileSync(join(here, "template.html"), "utf8");
 const fill = (key, value) => {
+  if (jsonOnly) return;
   if (!html.includes(`{{${key}}}`)) throw new Error(`template has no {{${key}}}`);
   html = html.split(`{{${key}}}`).join(value);
 };
@@ -73,8 +77,20 @@ fill("sunLine", esc(`Sun in ${cap(sunSign)}`));
 fill("nextNew", ritualLink(nextNew));
 fill("nextFull", ritualLink(nextFull));
 fill("retroLine", esc(retroLine));
-if (/\{\{\w+\}\}/.test(html)) throw new Error("a placeholder was left unfilled");
-if (new RegExp("[" + String.fromCharCode(0x2014, 0x2013) + "]").test(html)) throw new Error("a long or short dash crept in");
-
-writeFileSync(join(here, "index.html"), html);
-console.log(`sky/index.html for ${day}: ${moonLine} ${retroLine}`);
+if (!jsonOnly) {
+  if (/\{\{\w+\}\}/.test(html)) throw new Error("a placeholder was left unfilled");
+  if (new RegExp("[" + String.fromCharCode(0x2014, 0x2013) + "]").test(html)) throw new Error("a long or short dash crept in");
+  writeFileSync(join(here, "index.html"), html);
+}
+// The day's sky as data, for the home page's sky strip (pass 4, item 8):
+// the Moon's line and the next new or full moon, whichever comes first.
+const nextMoon = new Date(nextNew.occurs_at) <= new Date(nextFull.occurs_at) ? nextNew : nextFull;
+const nextRitual = rituals[nextMoon.ritual_key];
+writeFileSync(join(here, "today.json"), JSON.stringify({
+  day, moon: { name: phase.name, sign: cap(phase.sign), line: moonLine }, sun: cap(sunSign), retrograde: retro,
+  next: {
+    kind: nextMoon.kind, title: nextRitual.title, path: nextRitual.path, date: longDate(new Date(nextMoon.occurs_at)),
+    line: `Next: ${nextRitual.title}, ${longDate(new Date(nextMoon.occurs_at))}`,
+  },
+}) + "\n");
+console.log(`${jsonOnly ? "sky/today.json" : "sky/index.html"} for ${day}: ${moonLine} ${retroLine}`);

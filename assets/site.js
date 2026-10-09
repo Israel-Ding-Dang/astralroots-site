@@ -42,6 +42,22 @@ phone: !!phone, ref_host: from,
 }
 window.astral = { count: count };
 count("page_view");
+var head = d.querySelector(".site-head");
+if (head) {
+var mark = function () { head.classList.toggle("scrolled", window.scrollY > 4); };
+mark();
+window.addEventListener("scroll", mark, { passive: true });
+}
+var menu = d.querySelector("details.menu");
+if (menu) {
+menu.addEventListener("click", function (e) { if (e.target.closest("a")) menu.removeAttribute("open"); });
+menu.addEventListener("toggle", function () {
+menu.querySelector("summary").setAttribute("aria-label", menu.open ? "Close" : "Menu");
+});
+d.addEventListener("keydown", function (e) {
+if (e.key === "Escape" && menu.open) { menu.removeAttribute("open"); menu.querySelector("summary").focus(); }
+});
+}
 d.querySelectorAll(".stagger").forEach(function (group) {
 Array.prototype.forEach.call(group.querySelectorAll(":scope > .rise"), function (el, i) {
 el.style.setProperty("--stagger", i * 40 + "ms");
@@ -59,19 +75,6 @@ io.unobserve(e.target);
 targets.forEach(function (el) { io.observe(el); });
 } else {
 targets.forEach(function (el) { el.classList.add("in"); });
-}
-var moon = d.querySelector(".hero-moon");
-if (moon && motion) {
-var queued = false;
-window.addEventListener("scroll", function () {
-if (queued) return;
-queued = true;
-requestAnimationFrame(function () {
-queued = false;
-var y = Math.min(window.scrollY * 0.05, 12);
-moon.style.transform = "translate3d(0," + y.toFixed(1) + "px,0)";
-});
-}, { passive: true });
 }
 if (!d.getElementById("compat-data")) d.querySelectorAll("form.picker").forEach(function (f) {
 f.addEventListener("submit", function (e) {

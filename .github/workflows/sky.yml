@@ -30,13 +30,13 @@ jobs:
         run: node sky/build.mjs
       - name: Commit the page if it changed
         run: |
-          if git diff --quiet -- sky/index.html; then
-            echo "sky/index.html is already today's"
+          if git diff --quiet -- sky/index.html sky/today.json; then
+            echo "sky/index.html and sky/today.json are already today's"
             exit 0
           fi
           git config user.name "the sky today"
           git config user.email "sky@astralroots.app"
-          git commit -m "The sky today: $(date -u +%Y-%m-%d)" -- sky/index.html
+          git commit -m "The sky today: $(date -u +%Y-%m-%d)" -- sky/index.html sky/today.json
           git push
       - name: Ask Pages to build
         env:

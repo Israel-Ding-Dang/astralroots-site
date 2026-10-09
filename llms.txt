@@ -6,7 +6,8 @@ AstralRoots reads today's sky against your own birth chart and tells you, in pla
 
 ## Pages
 
-- [Home](https://astralroots.app/): what AstralRoots is, with screenshots
+- [Home](https://astralroots.app/): what AstralRoots is, with screenshots and the free calculator
+- [About](https://astralroots.app/about): what AstralRoots is, who makes it, how charts are calculated, what the readings are and are not
 - [Support](https://astralroots.app/support): help with the app
 - [Privacy policy](https://astralroots.app/privacy)
 - [Terms of use](https://astralroots.app/terms)
