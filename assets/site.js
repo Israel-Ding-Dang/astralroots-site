@@ -31,6 +31,12 @@ from = new URL(d.referrer).hostname.toLowerCase().replace(/^www\./, "");
 if (from === location.hostname.replace(/^www\./, "") || !/^[a-z0-9.-]{1,253}$/.test(from)) from = "";
 }
 } catch (e) { from = ""; }
+var q = new URLSearchParams(location.search);
+if (q.get("utm_source") === "pinterest") {
+if (!from) from = "pinterest.com";
+q.delete("utm_source");
+history.replaceState(null, "", location.pathname + (q + "" ? "?" + q : "") + location.hash);
+}
 function count(event, page) {
 if (!counting) return;
 try {
