@@ -28,15 +28,16 @@ jobs:
           node-version: 22
       - name: Compute today's sky
         run: node sky/build.mjs
-      - name: Commit the sky page, its data and the ritual dates if they changed
+      - name: Commit the sky page, its data, the ritual dates and the Pinterest feeds if they changed
         run: |
-          if git diff --quiet -- sky rituals; then
-            echo "the sky page, its data and the ritual dates are already today's"
+          git add -A -- feeds
+          if git diff --quiet -- sky rituals && git diff --cached --quiet -- feeds; then
+            echo "the sky page, its data, the ritual dates and the feeds are already today's"
             exit 0
           fi
           git config user.name "the sky today"
           git config user.email "sky@astralroots.app"
-          git commit -m "The sky today: $(date -u +%Y-%m-%d)" -- sky rituals
+          git commit -m "The sky today: $(date -u +%Y-%m-%d)" -- sky rituals feeds
           git push
       - name: Ask Pages to build
         env:

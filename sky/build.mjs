@@ -10,7 +10,11 @@
 //   node sky/build.mjs [YYYY-MM-DD]      (defaults to today, UTC)
 //
 // Deterministic: the same date gives the same bytes.
-import { readFileSync, writeFileSync } from "node:fs";
+//
+// Since 26 Oct 2026 it also writes the Pinterest feeds, feeds/*.xml, one per
+// board, from feeds/schedule.json (site/pins/feeds.ts): each holds only the
+// pins whose release day has come.
+import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
 
@@ -163,6 +167,71 @@ if (!jsonOnly) {
   if (seen !== ritualKeys.length) throw new Error(`rituals index: ${seen} next-date lines, expected ${ritualKeys.length}`);
   if (indexAfter !== indexBefore) { writeFileSync(indexFile, indexAfter); changed++; }
   console.log(`ritual next dates: ${changed} files changed`);
+}
+// The Pinterest feeds (Belmont, 26 Oct 2026): one RSS 2.0 feed per board,
+// each holding only the pins whose release day has come, newest first, so
+// the backlog enters a few a day and is never in the feeds at once.
+// Pinterest reads each feed within 24 hours and publishes the oldest item
+// first; an item keeps its guid for good, so it is never posted twice.
+if (!jsonOnly) {
+  const feedDir = join(here, "..", "feeds");
+  const scheduleFile = join(feedDir, "schedule.json");
+  if (existsSync(scheduleFile)) {
+    const schedule = JSON.parse(readFileSync(scheduleFile, "utf8"));
+    // Element text and double-quoted attributes: & < > " are escaped, and an
+    // apostrophe needs nothing.
+    const xml = (t) => esc(t);
+    const boardSlug = (b) => b.toLowerCase().replace(/ /g, "-");
+    mkdirSync(feedDir, { recursive: true });
+    const counts = [];
+    for (const board of schedule.boards) {
+      const released = schedule.items.filter((i) => i.board === board && i.release <= day);
+      // A distinct minute per item on a day, in schedule order, so "oldest
+      // first" keeps the schedule's order within the day.
+      const stamped = released.map((item) => {
+        const sameDay = released.filter((i) => i.release === item.release);
+        // Midnight UTC of its day, before the job runs, so no item is dated
+        // in the future when Pinterest reads it.
+        const at = new Date(`${item.release}T00:00:00Z`);
+        at.setUTCMinutes(sameDay.indexOf(item));
+        return { item, at };
+      }).sort((a, b) => b.at - a.at);
+      const items = stamped.map(({ item, at }) => {
+        const image = join(here, "..", "pins", `${item.slug}.jpg`);
+        if (!existsSync(image)) throw new Error(`feeds: no image for ${item.slug}`);
+        return [
+          "    <item>",
+          `      <title>${xml(item.title)}</title>`,
+          `      <link>${xml(item.link)}</link>`,
+          `      <description>${xml(item.description)}</description>`,
+          `      <guid isPermaLink="false">astralroots-pin-${item.slug}</guid>`,
+          `      <pubDate>${at.toUTCString()}</pubDate>`,
+          `      <enclosure url="${xml(item.image)}" length="${statSync(image).size}" type="image/jpeg"/>`,
+          `      <media:content url="${xml(item.image)}" medium="image" type="image/jpeg" width="1000" height="1500"/>`,
+          "    </item>",
+        ].join("\n");
+      });
+      const feed = [
+        `<?xml version="1.0" encoding="UTF-8"?>`,
+        `<rss version="2.0" xmlns:media="http://search.yahoo.com/mrss/">`,
+        "  <channel>",
+        `    <title>AstralRoots: ${xml(board)}</title>`,
+        "    <link>https://astralroots.app/</link>",
+        `    <description>${xml(`AstralRoots pins for the ${board} board.`)}</description>`,
+        "    <language>en</language>",
+        `    <lastBuildDate>${new Date(`${day}T00:00:00Z`).toUTCString()}</lastBuildDate>`,
+        ...items,
+        "  </channel>",
+        "</rss>",
+        "",
+      ].join("\n");
+      if (new RegExp("[" + String.fromCharCode(0x2014, 0x2013) + "]").test(feed)) throw new Error(`feeds: a long or short dash in ${board}`);
+      writeFileSync(join(feedDir, `${boardSlug(board)}.xml`), feed);
+      counts.push(`${boardSlug(board)} ${released.length}`);
+    }
+    const waiting = schedule.items.filter((i) => i.release > day).length;
+    console.log(`pinterest feeds for ${day}: ${counts.join(", ")}; ${waiting} still waiting`);
+  }
 }
 console.log(`${jsonOnly ? "sky/today.json" : "sky/index.html"} for ${day}: ${moonLine} ${retroLine}; the Moon ${shade.cls}, terminator ${shade.term}`);
 for (const key of ritualKeys) console.log(`  ${key}: ${ritualDates[key].date}`);
