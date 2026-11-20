@@ -28,16 +28,34 @@ jobs:
           node-version: 22
       - name: Compute today's sky
         run: node sky/build.mjs
-      - name: Commit the sky page, its data, the ritual dates and the Pinterest feeds if they changed
+      # The event pins (20 Nov 2026): each new and full moon and Sun season pin
+      # is drawn a week before its release, with the runner's own Chrome. If
+      # this step fails, the sky and the other pins still go out, and a pin
+      # not yet drawn waits in the feeds until a later morning draws it.
+      - name: Draw the Pinterest event pins due in the next week
+        continue-on-error: true
         run: |
-          git add -A -- feeds
-          if git diff --quiet -- sky rituals && git diff --cached --quiet -- feeds; then
-            echo "the sky page, its data, the ritual dates and the feeds are already today's"
+          npm install --no-save --no-package-lock --prefix "$RUNNER_TEMP/pins" puppeteer-core@24.43.1
+          PUPPETEER_DIR="$RUNNER_TEMP/pins/node_modules/puppeteer-core" CHROME="$(command -v google-chrome || command -v google-chrome-stable)" node sky/pins-draw.mjs
+      # A run started by hand also draws the next event pin to come into a
+      # temporary folder and keeps nothing, to prove the drawing works here.
+      - name: Check the event pin drawing (runs started by hand only)
+        if: github.event_name == 'workflow_dispatch'
+        continue-on-error: true
+        run: |
+          PUPPETEER_DIR="$RUNNER_TEMP/pins/node_modules/puppeteer-core" CHROME="$(command -v google-chrome || command -v google-chrome-stable)" node sky/pins-draw.mjs --check
+      - name: The feeds again, with any pin drawn this morning
+        run: node sky/build.mjs
+      - name: Commit the sky page, its data, the ritual dates, the Pinterest feeds and event pins if they changed
+        run: |
+          git add -A -- feeds pins
+          if git diff --quiet -- sky rituals && git diff --cached --quiet -- feeds pins; then
+            echo "the sky page, its data, the ritual dates, the feeds and the event pins are already today's"
             exit 0
           fi
           git config user.name "the sky today"
           git config user.email "sky@astralroots.app"
-          git commit -m "The sky today: $(date -u +%Y-%m-%d)" -- sky rituals feeds
+          git commit -m "The sky today: $(date -u +%Y-%m-%d)" -- sky rituals feeds pins
           git push
       - name: Ask Pages to build
         env:

@@ -12,8 +12,12 @@
 // Deterministic: the same date gives the same bytes.
 //
 // Since 26 Oct 2026 it also writes the Pinterest feeds, feeds/*.xml, one per
-// board, from feeds/schedule.json (site/pins/feeds.ts): each holds only the
-// pins whose release day has come.
+// board, from feeds/schedule.json (site/pins/feeds.ts and pins2.ts): each
+// holds only the pins whose release day has come. Since 20 Nov 2026 it also
+// lists the event pins, a pin for every new and full moon and every Sun season
+// from the engine's own dates (sky/pin-events.mjs), in pins/events.json; the
+// job draws each one a week ahead (sky/pins-draw.mjs), and a feed takes an
+// event pin on its release day once its image is there.
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -178,6 +182,21 @@ if (!jsonOnly) {
   const scheduleFile = join(feedDir, "schedule.json");
   if (existsSync(scheduleFile)) {
     const schedule = JSON.parse(readFileSync(scheduleFile, "utf8"));
+    // The event pins up to two weeks ahead, so the drawing step can work a
+    // week before each release.
+    const { eventPins } = await import(pathToFileURL(join(here, "pin-events.mjs")).href);
+    const lookahead = new Date(start.getTime() + 14 * 86400_000).toISOString().slice(0, 10);
+    const events = eventPins({
+      engine, rituals, until: lookahead, scheduled: schedule.items,
+      readPage: (path) => readFileSync(join(here, "..", `${path}.html`), "utf8"),
+    });
+    mkdirSync(join(here, "..", "pins"), { recursive: true });
+    writeFileSync(join(here, "..", "pins", "events.json"), JSON.stringify(events, null, 1) + "\n");
+    const imageFile = (item) => join(here, "..", decodeURIComponent(new URL(item.image).pathname));
+    const undrawn = events.filter((e) => e.release <= day && !existsSync(imageFile(e)));
+    const feedItems = [...schedule.items, ...events.filter((e) => !undrawn.includes(e)).map((e) => ({
+      slug: e.slug, board: e.board, title: e.searchTitle, description: e.description, image: e.image, link: e.link, release: e.release,
+    }))];
     // Element text and double-quoted attributes: & < > " are escaped, and an
     // apostrophe needs nothing.
     const xml = (t) => esc(t);
@@ -185,7 +204,7 @@ if (!jsonOnly) {
     mkdirSync(feedDir, { recursive: true });
     const counts = [];
     for (const board of schedule.boards) {
-      const released = schedule.items.filter((i) => i.board === board && i.release <= day);
+      const released = feedItems.filter((i) => i.board === board && i.release <= day);
       // A distinct minute per item on a day, in schedule order, so "oldest
       // first" keeps the schedule's order within the day.
       const stamped = released.map((item) => {
@@ -197,7 +216,7 @@ if (!jsonOnly) {
         return { item, at };
       }).sort((a, b) => b.at - a.at);
       const items = stamped.map(({ item, at }) => {
-        const image = join(here, "..", "pins", `${item.slug}.jpg`);
+        const image = imageFile(item);
         if (!existsSync(image)) throw new Error(`feeds: no image for ${item.slug}`);
         return [
           "    <item>",
@@ -229,8 +248,11 @@ if (!jsonOnly) {
       writeFileSync(join(feedDir, `${boardSlug(board)}.xml`), feed);
       counts.push(`${boardSlug(board)} ${released.length}`);
     }
-    const waiting = schedule.items.filter((i) => i.release > day).length;
+    const waiting = feedItems.filter((i) => i.release > day).length;
     console.log(`pinterest feeds for ${day}: ${counts.join(", ")}; ${waiting} still waiting`);
+    const next = events.filter((e) => e.release > day).slice(0, 3).map((e) => `${e.slug} on ${e.release}`);
+    console.log(`event pins: ${events.length} listed to ${lookahead}${next.length ? `; next ${next.join(", ")}` : ""}` +
+      (undrawn.length ? `; NOT YET DRAWN, held back: ${undrawn.map((e) => e.slug).join(", ")}` : ""));
   }
 }
 console.log(`${jsonOnly ? "sky/today.json" : "sky/index.html"} for ${day}: ${moonLine} ${retroLine}; the Moon ${shade.cls}, terminator ${shade.term}`);
